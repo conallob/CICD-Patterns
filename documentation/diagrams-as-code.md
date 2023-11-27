@@ -8,7 +8,7 @@ most common tools is [Graphviz](http://www.graphviz.org)
 
 ### GitHub Actions
 
-```
+```yaml
 on:
   push:
     branches:
