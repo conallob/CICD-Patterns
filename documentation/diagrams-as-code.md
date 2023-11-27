@@ -8,7 +8,42 @@ most common tools is [Graphviz](http://www.graphviz.org)
 
 ### GitHub Actions
 
-TODO(conallob): Add GitHub Actions example here
+```
+on:
+  push:
+    branches:
+      - "main"
+
+# Input: example.dot
+# Output: example.png
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      # Prepare build environment
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # Install Graphviz
+      - name: Setup Graphviz
+        uses: ts-graphviz/setup-graphviz@v1
+
+      # Generate PNG from DOT code  
+      - name: Generate DOT Diagram
+        run: dot -Tpng example.dot -o example.png
+        
+      # Add generated content to Release
+      - name: Upload Generated Diagrams
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            example.png
+```
+
+TODO(conallob): Find a way to generate output on PRs, not just on releaes
+TODO(conallob): Find a way to upload generated content somewhere other than a release
 
 ### Azure DevOps Pipelines
 
