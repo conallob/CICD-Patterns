@@ -42,12 +42,57 @@ jobs:
             example.png
 ```
 
-TODO(conallob): Find a way to generate output on PRs, not just on releaes
+TODO(conallob): Find a way to generate output on PRs, not just on releases
+
 TODO(conallob): Find a way to upload generated content somewhere other than a release
 
 ### Azure DevOps Pipelines
 
-TODO(conallob): Add ADO example here, once it works
+```yaml
+resources:
+  repositories:
+    - repository: Example/Repository
+      type: githube
+      name: Example-Repository
+      endpoint: "GitHub"
+
+
+stages:
+- stage: 'DiagramsAsCode'
+  displayName: 'Generate Diagrams from ASCII definition'
+
+  jobs:
+  - job: GeneratePNGImage
+    displayName: Generate PNG Images
+    container:
+      image: bash:latest
+    steps:
+    - checkout: self
+    - task: Bash@3
+      displayName: 'Install Graphviz'
+      inputs:
+        targetType: 'inline'
+        script: |
+          sudo apt-get update && sudo apt-get install --yes graphviz
+    - task: Bash@3
+      displayName: 'Generate PNG Image for each DOT File'
+      inputs:
+        targetType: 'inline'
+        script: |
+          for i in $(find . -name *.dot); do dot -Tpng ${i} -o $(Build.ArtifactStagingDirectory)/$(basename $i ".dot").png ; done
+    - task: GithubRelease@0
+      displayName: 'Upload to GitHub'
+      inputs:
+        gitHubConnection: github
+        repositoryName: Example/Repository
+        assets: $(Build.ArtifactStagingDirectory)/*.png
+        target: '$(Build.SourceVersion)'
+        tag: $(githubTag)
+        addChangeLog: true
+        assetUploadMode: replace
+```
+
+TODO(conallob): Find a way to generate output on PRs, not just on releases
 
 ## See Also
 
